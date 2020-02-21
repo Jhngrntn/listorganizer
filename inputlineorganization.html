@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <style>
+            body, html
+            {
+                margin: 0;
+                width: 100%;
+                height: 100%;
+
+            }
+            body
+            {
+              display:flex;
+              flex-direction:column;
+              align-items:center;
+            }
+            textarea
+            {
+                width:500px;
+                height: 500px;
+            }
+            #sub
+            {
+                margin: 5px;
+                font-size: 30px;
+                padding: 5px;
+                border-radius: 10px;
+            }
+            #output
+            {
+                margin: 30px 0;
+            }
+            .entry, .arrows
+            {
+                display:flex;
+                flex-direction: row;
+            }
+            .arrows
+            {
+                opacity: 0;
+            }
+            .up, .down
+            {
+                
+                font-size: 20px;
+                margin: 0 5px;
+                font-weight: 700;
+
+            }
+            p
+            {
+                font-size: 20px;
+                font-family: sans-serif;
+            }
+            .downloadable
+            {
+                display:none;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="downloadable">
+            <input placeholder=".txt name" id="filename">
+            <button id="dl">Download</button>
+        </div>
+        <div id="output">
+            <div class="entry">
+            </div>
+        </div>
+        <textarea></textarea>
+        <button id="sub">Submit</button>
+    </body>
+    <script>
+        $(document).ready(function()
+        {
+
+
+
+            reala = [];
+            
+
+
+            $(document).on('mouseenter','.entry',function()
+            {
+                $('.arrows',this).css('opacity','1');
+            });
+            $(document).on('mouseleave','.entry',function()
+            {
+                $('.arrows',this).css('opacity','0');
+            });
+
+
+
+            $(document).on('click','.up',function()
+            {
+                let entry = $(this).parents('.entry');
+                let order = $(entry).index();
+                if(order!==0)
+                {
+                    let above = reala[order-1];
+                    reala[order-1] = reala[order];
+                    reala[order] = above;
+                    $('#output').html('');
+                    for(let i=0;i<reala.length;i++)
+                    {
+                        $('#output').append('<div class="entry"><div class="arrows"><span class="upup">&#8686;</span><span class="up">&#8679;</span><span class="down">&#8681;</span></div><p>'+reala[i]+'<p></div>');
+                    }
+                }
+            });
+            $(document).on('click','.down',function()
+            {
+                let entry = $(this).parents('.entry');
+                let order = $(entry).index();
+                if(order!==reala.length)
+                {
+                    let below = reala[order+1];
+                    reala[order+1] = reala[order];
+                    reala[order] = below;
+                    $('#output').html('');
+                    for(let i=0;i<reala.length;i++)
+                    {
+                        $('#output').append('<div class="entry"><div class="arrows"><span class="upup">&#8686;</span><span class="up">&#8679;</span><span class="down">&#8681;</span></div><p>'+reala[i]+'<p></div>');
+                    }
+                }
+            });
+            $(document).on('click','.upup',function()
+            {
+                let entry = $(this).parents('.entry');
+                let order = $(entry).index();
+                if(order!==0)
+                {
+                    let newTop = reala[order];
+                    let newArr = [newTop];
+                    for(let i=0;i<reala.length;i++)
+                    {
+                        if(i!==order)
+                        {
+                            newArr.push(reala[i]);
+                        }
+                    }
+                    reala = newArr;
+                    $('#output').html('');
+                    for(let i=0;i<reala.length;i++)
+                    {
+                        $('#output').append('<div class="entry"><div class="arrows"><span class="upup">&#8686;</span><span class="up">&#8679;</span><span class="down">&#8681;</span></div><p>'+reala[i]+'<p></div>');
+                    }
+                }
+            });
+
+
+
+            $(document).on('click','#dl',function()
+            {
+                let name = $('#filename').val();
+                let content = "data:application/octet-stream,";
+                content += reala.join('\n\n');
+                $('#output').html(content);
+                var encodedUri = encodeURI(content);
+                var link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", name + ".txt");
+                document.body.appendChild(link);
+
+                link.click();
+            });
+
+            
+
+            $(document).on('click','#sub',()=>
+            {
+                let txtin = $('textarea').val();
+                let arra = txtin.split('\n');
+                $('.downloadable').fadeIn(100);
+                $('#output').html('');
+                for(let i=0;i<arra.length;i++)
+                {
+                    if(arra[i]!=='')
+                    {
+                        reala.push(arra[i].trim());
+                    }
+                }
+                for(let i=0;i<reala.length;i++)
+                {
+                    $('#output').append('<div class="entry"><div class="arrows"><span class="upup">&#8686;</span><span class="up">&#8679;</span><span class="down">&#8681;</span></div><p>'+reala[i]+'<p></div>');
+                }
+                $('textarea').fadeOut();
+                $('#sub').fadeOut();
+                
+            });
+        });
+    </script>
+</html>
+
